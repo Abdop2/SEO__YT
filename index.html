@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرك بحث فيديوهات YouTube</title>
+    <meta name="google-site-verification" content="OdHjLt6jRQuBfypruTJYd4RUCdUx2eXWdj12ILvuQM4" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        #searchForm {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        #searchForm input[type="text"] {
+            width: 60%;
+            padding: 10px;
+            border-radius: 25px;
+            border: 1px solid #333;
+            outline: none;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: box-shadow 0.3s;
+        }
+        #searchForm input[type="text"]:focus {
+            box-shadow: 0 0 10px #ff9800;
+        }
+        #searchForm button {
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: none;
+            background-color: #ff9800;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        #searchForm button:hover {
+            background-color: #e88e00;
+            transform: scale(1.05);
+        }
+        #loadingSpinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #loadingSpinner img {
+            width: 50px;
+        }
+        #suggestions {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            color: #ff9800;
+            display: none;
+        }
+        #suggestions ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background-color: #333;
+            border-radius: 10px;
+            display: inline-block;
+            text-align: left;
+        }
+        #suggestions ul li {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #suggestions ul li:hover {
+            background-color: #555;
+        }
+        #searchResults {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+        }
+        .video-card {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 320px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            animation: slideUp 0.5s ease-out;
+        }
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        }
+        .video-card h3 {
+            font-size: 18px;
+            color: #ff9800;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+        .video-card iframe {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            loading: lazy; /* Lazy loading for better performance */
+        }
+        .video-card .channel-link {
+            display: block;
+            margin-top: 10px;
+            color: #ff9800;
+            text-decoration: none;
+        }
+        .video-card .channel-link:hover {
+            text-decoration: underline;
+        }
+        .video-card button.share-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #ff9800;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .video-card button.share-btn:hover {
+            background-color: #e88e00;
+        }
+        .video-card button.save-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #ff9800;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .video-card button.save-btn:hover {
+            background-color: #e88e00;
+        }
+        #modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+            text-align: center;
+        }
+        #modal-content {
+            margin: 10% auto;
+            width: 80%;
+            max-width: 800px;
+        }
+        #modal iframe {
+            width: 100%;
+            height: 450px;
+            border-radius: 8px;
+            border: none;
+        }
+        #modal-close {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: #ffffff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #pagination button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: #ff9800;
+            color: #ffffff;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: background-color 0.3s;
+        }
+        #pagination button:hover {
+            background-color: #e88e00;
+        }
+        #pagination button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>محرك بحث فيديوهات YouTube</h1>
+    
+    <div id="searchForm">
+        <input type="text" id="searchQuery" placeholder="ابحث عن فيديوهات هنا...">
+        <button id="searchButton">بحث</button>
+    </div>
+
+    <div id="loadingSpinner">
+        <img src="https://i.imgur.com/LLF5iyg.gif" alt="جارٍ التحميل...">
+    </div>
+
+    <div id="suggestions">
+        <ul id="suggestionsList"></ul>
+    </div>
+
+    <div id="searchResults"></div>
+
+    <div id="pagination">
+        <button id="prevPage" disabled>السابق</button>
+        <span id="pageInfo"></span>
+        <button id="nextPage">التالي</button>
+    </div>
+
+    <div id="modal">
+        <span id="modal-close">&times;</span>
+        <div id="modal-content">
+            <iframe src="" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let currentPage = 1;
+            const resultsPerPage = 10;
+            let nextPageToken = '';
+            let prevPageToken = '';
+
+            $('#searchQuery').on('input', function() {
+                const query = $(this).val();
+                if (query.length > 2) {
+                    fetchSuggestions(query);
+                } else {
+                    $('#suggestions').hide();
+                }
+            });
+
+            $('#searchButton').click(function() {
+                const query = $('#searchQuery').val();
+                if (query) {
+                    $('#suggestions').hide();
+                    searchYouTube(query);
+                }
+            });
+
+            function fetchSuggestions(query) {
+                $.ajax({
+                    url: `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`,
+                    dataType: 'jsonp',
+                    success: function(data) {
+                        const suggestions = data[1];
+                        $('#suggestionsList').empty();
+                        suggestions.forEach(suggestion => {
+                            $('#suggestionsList').append(`<li>${suggestion}</li>`);
+                        });
+                        $('#suggestions').show();
+                        $('#suggestionsList li').click(function() {
+                            $('#searchQuery').val($(this).text());
+                            $('#searchButton').click();
+                        });
+                    }
+                });
+            }
+
+            function searchYouTube(query) {
+                $('#loadingSpinner').show();
+                $.ajax({
+                    url: `https://www.googleapis.com/youtube/v3/search`,
+                    type: 'GET',
+                    data: {
+                        part: 'snippet',
+                        q: query,
+                        type: 'video',
+                        maxResults: resultsPerPage,
+                        pageToken: nextPageToken,
+                        key: 'AIzaSyDXk_Q2bfsiyk2QimNqpQUIN_1lZDJpDBY'
+                    },
+                    success: function(response) {
+                        $('#loadingSpinner').hide();
+                        $('#searchResults').empty();
+                        if (response.items.length) {
+                            response.items.forEach(item => {
+                                const videoId = item.id.videoId;
+                                const title = item.snippet.title;
+                                const channelTitle = item.snippet.channelTitle;
+                                const thumbnail = item.snippet.thumbnails.high.url;
+                                $('#searchResults').append(`
+                                    <div class="video-card">
+                                        <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+                                        <h3>${title}</h3>
+                                        <a href="https://www.youtube.com/channel/${item.snippet.channelId}" class="channel-link" target="_blank">${channelTitle}</a>
+                                        <button class="share-btn" data-video-id="${videoId}">مشاركة</button>
+                                        <button class="save-btn" data-video-id="${videoId}">حفظ</button>
+                                    </div>
+                                `);
+                            });
+                            nextPageToken = response.nextPageToken || '';
+                            prevPageToken = response.prevPageToken || '';
+                            $('#pagination #nextPage').prop('disabled', !nextPageToken);
+                            $('#pagination #prevPage').prop('disabled', !prevPageToken);
+                            $('#pageInfo').text(`الصفحة ${currentPage}`);
+                        } else {
+                            $('#searchResults').html('<p>لا توجد نتائج.</p>');
+                        }
+                    }
+                });
+            }
+
+            $('#pagination #nextPage').click(function() {
+                if (nextPageToken) {
+                    currentPage++;
+                    searchYouTube($('#searchQuery').val());
+                }
+            });
+
+            $('#pagination #prevPage').click(function() {
+                if (prevPageToken) {
+                    currentPage--;
+                    searchYouTube($('#searchQuery').val());
+                }
+            });
+
+            $('#modal-close').click(function() {
+                $('#modal').hide();
+                $('#modal iframe').attr('src', '');
+            });
+
+            $(document).on('click', '.video-card iframe', function() {
+                const src = $(this).attr('src');
+                $('#modal iframe').attr('src', src);
+                $('#modal').show();
+            });
+
+            $(document).on('click', '.share-btn', function() {
+                const videoId = $(this).data('video-id');
+                const url = `https://www.youtube.com/watch?v=${videoId}`;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('رابط الفيديو تم نسخه إلى الحافظة!');
+                });
+            });
+
+            $(document).on('click', '.save-btn', function() {
+                const videoId = $(this).data('video-id');
+                // هنا يمكنك إضافة الكود لحفظ الفيديو إلى قائمة مفضلات المستخدم
+                alert('تم حفظ الفيديو!');
+            });
+        });
+    </script>
+</body>
+</html>
+<!-- زر تبديل الوضع -->
+<div style="text-align: center; margin-top: 20px;">
+    <button id="toggleMode">تبديل الوضع</button>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // التحقق من الوضع المحفوظ في التخزين المحلي
+        if (localStorage.getItem('theme') === 'day') {
+            $('body').addClass('day-mode');
+        } else {
+            $('body').addClass('night-mode');
+        }
+
+        // تغيير الوضع عند الضغط على الزر
+        $('#toggleMode').click(function() {
+            if ($('body').hasClass('night-mode')) {
+                $('body').removeClass('night-mode').addClass('day-mode');
+                localStorage.setItem('theme', 'day');
+                $('#toggleMode').text('تبديل الوضع الليلي');
+            } else {
+                $('body').removeClass('day-mode').addClass('night-mode');
+                localStorage.setItem('theme', 'night');
+                $('#toggleMode').text('تبديل الوضع النهاري');
+            }
+        });
+    });
+    
+</script>
+<style>
+    /* الوضع النهاري */
+    body.day-mode {
+        background-color: #ffffff;
+        color: #000000;
+    }
+    .day-mode h1 {
+        color: #000000;
+    }
+    .day-mode #searchForm input[type="text"] {
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px #000;
+    }
+    .day-mode #searchForm button {
+        background-color: #007bff;
+        color: #ffffff;
+    }
+    .day-mode #suggestions {
+        color: #007bff;
+    }
+    .day-mode .video-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+    }
+    .day-mode .video-card h3 {
+        color: #007bff;
+    }
+    .day-mode .video-card button.share-btn,
+    .day-mode .video-card button.save-btn {
+        background-color: #007bff;
+    }
+    .day-mode #modal {
+        background-color: rgba(255,255,255,0.9);
+    }
+
+    /* الوضع الليلي */
+    body.night-mode {
+        background-color: #121212;
+        color: #f4f4f4;
+    }
+    .night-mode h1 {
+        color: #ffffff;
+    }
+    .night-mode #searchForm input[type="text"] {
+        border: 1px solid #333;
+        box-shadow: 0 0 10px #ff9800;
+    }
+    .night-mode #searchForm button {
+        background-color: #ff9800;
+        color: #ffffff;
+    }
+    .night-mode #suggestions {
+        color: #ff9800;
+    }
+    .night-mode .video-card {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+    }
+    .night-mode .video-card h3 {
+        color: #ff9800;
+    }
+    .night-mode .video-card button.share-btn,
+    .night-mode .video-card button.save-btn {
+        background-color: #ff9800;
+    }
+    .night-mode #modal {
+        background-color: rgba(0,0,0,0.9);
+    }
+    
+    /* تأثير الانتقال بين الوضعين */
+    body {
+        transition: background-color 0.5s ease, color 0.5s ease;
+    }
+    .video-card {
+        transition: background-color 0.5s ease, box-shadow 0.5s ease;
+    }
+    .video-card h3 {
+        transition: color 0.5s ease;
+    }
+    #searchForm input[type="text"],
+    #searchForm button {
+        transition: background-color 0.5s ease, color 0.5s ease;
+    }
+    #modal {
+        transition: background-color 0.5s ease;
+    }
+    /* الوضع النهاري */
+    body.day-mode {
+        background-color: #ffffff;
+        color: #000000;
+    }
+    .day-mode h1 {
+        color: #000000;
+    }
+    .day-mode #searchForm input[type="text"] {
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px #000;
+    }
+    .day-mode #searchForm button {
+        background-color: #007bff;
+        color: #ffffff;
+    }
+    .day-mode #suggestions {
+        color: #007bff;
+    }
+    .day-mode .video-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+    }
+    .day-mode .video-card h3 {
+        color: #007bff;
+    }
+    .day-mode .video-card button.share-btn,
+    .day-mode .video-card button.save-btn {
+        background-color: #007bff;
+    }
+    .day-mode #modal {
+        background-color: rgba(255,255,255,0.9);
+    }
+
+    /* الوضع الليلي */
+    body.night-mode {
+        background-color: #121212;
+        color: #f4f4f4;
+    }
+    .night-mode h1 {
+        color: #ffffff;
+    }
+    .night-mode #searchForm input[type="text"] {
+        border: 1px solid #333;
+        box-shadow: 0 0 10px #ff9800;
+    }
+    .night-mode #searchForm button {
+        background-color: #ff9800;
+        color: #ffffff;
+    }
+    .night-mode #suggestions {
+        color: #ff9800;
+    }
+    .night-mode .video-card {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+    }
+    .night-mode .video-card h3 {
+        color: #ff9800;
+    }
+    .night-mode .video-card button.share-btn,
+    .night-mode .video-card button.save-btn {
+        background-color: #ff9800;
+    }
+    .night-mode #modal {
+        background-color: rgba(0,0,0,0.9);
+    }
+     #filters {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #filters select {
+            padding: 10px;
+            border-radius: 25px;
+            border: 1px solid #333;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            margin: 0 10px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        #filters select:hover {
+            background-color: #333;
+        }
+        <style>
+    /* تحسين شكل الأزرار */
+    button {
+        border: none;
+        cursor: pointer;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    button:hover {
+        opacity: 0.8;
+    }
+
+    /* زر البحث */
+    #searchButton {
+        background-color: #007bff;
+        color: #ffffff;
+    }
+    #searchButton:hover {
+        background-color: #0056b3;
+    }
+
+    /* أزرار التبديل بين الوضعين */
+    #toggleMode {
+        background-color: #007bff;
+        color: #ffffff;
+    }
+    #toggleMode:hover {
+        background-color: #0056b3;
+    }
+
+    /* أزرار المشاركة والحفظ */
+    .video-card .share-btn, .video-card .save-btn {
+        background-color: #007bff;
+        color: #ffffff;
+    }
+    .video-card .share-btn:hover, .video-card .save-btn:hover {
+        background-color: #0056b3;
+    }
+    .video-card {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        width: 320px;
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin: 10px;
+    }
+    .video-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    }
+    .video-card iframe {
+        border-radius: 12px;
+    }
+    .video-card h3 {
+        font-size: 20px;
+        margin: 10px 0;
+        color: #ff9800;
+    }
+    #searchForm input[type="text"] {
+        padding: 12px 20px;
+        border: 1px solid #007bff;
+        border-radius: 25px;
+        background-color: #ffffff;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    }
+    #searchForm input[type="text"]:focus {
+        border-color: #0056b3;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+    #searchForm button {
+        background-color: #007bff;
+        color: #ffffff;
+    }
+    #searchForm button:hover {
+        background-color: #0056b3;
+    }
+    #pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+    #pagination button {
+        background-color: #007bff;
+        color: #ffffff;
+        padding: 10px 15px;
+        border-radius: 5px;
+        border: none;
+        margin: 0 5px;
+    }
+    #pagination button:hover {
+        background-color: #0056b3;
+    }
+    #pagination button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+    /* تنسيق زر التبادل بين الوضع الليلي والنهاري */
+    #toggleMode {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        border-radius: 25px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    #toggleMode:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+    #toggleMode:active {
+        background-color: #004494;
+    }
+    /* تنسيق أزرار التصفية */
+    .filter-button {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 15px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        margin: 5px;
+    }
+    .filter-button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+    .filter-button:active {
+        background-color: #004494;
+    }
+    /* تنسيق الأزرار غير النشطة أو الغير مفعلة */
+    .filter-button.disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+    .footer {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.footer-icon {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    text-align: center;
+    width: 150px; /* العرض الموحد */
+}
+
+.footer-icon:hover {
+    background-color: #555;
+}
+/* تحسين الأزرار */
+button {
+    background-color: #4CAF50; /* اللون الأساسي للأزرار */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049; /* اللون عند التمرير */
+}
+/* تحسين الواجهة */
+.container {
+    padding: 5px;
+    margin: auto;
+    max-width: 1200px;
+}
+
+.header, .footer {
+    padding: 5px 0;
+    background-color: #333;
+    color: white;
+    text-align: center;
+}
+
+.main-content {
+    padding: 5px;
+    background-color: #f4f4f4;
+}
+</style>
+    <div id="filters">
+        <select id="filterType">
+            <option value="">جميع الأنواع</option>
+            <option value="video">فيديو</option>
+            <option value="playlist">قائمة تشغيل</option>
+            <option value="channel">قناة</option>
+        </select>
+        <select id="filterDuration">
+            <option value="">جميع المدَد</option>
+            <option value="short">أقل من 4 دقائق</option>
+            <option value="medium">بين 4 إلى 20 دقيقة</option>
+            <option value="long">أكثر من 20 دقيقة</option>
+        </select>
+    <div class="footer">
+    <a href="http://localhost:7700/index.html" class="footer-icon">الصفحة الرئيسية</a>
+
