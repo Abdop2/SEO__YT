@@ -9,10 +9,8 @@
     <meta name="google-site-verification" content="h0te96nouJn4cntcWC50e7TQ5cx44rHiTMJnpGrHcPU" />
     <meta name="description" content=" محرك بحث خارجي لليوتيوب مبسط تستطيع الان مساهدة الفيديوهات بدون اي اعلانات" />
         <meta name="keyword" content="SEO-YT, SEO__YT , youtube"/>
-    <meta name="google-adsense-account" content="ca-pub-2224772505400791">
     <style>
         <meta name="google-site-verification" content="h0te96nouJn4cntcWC50e7TQ5cx44rHiTMJnpGrHcPU" />
-        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #121212;
@@ -255,8 +253,8 @@
             <iframe src="" allowfullscreen></iframe>
         </div>
     </div>
-    
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script>
     $(document).ready(function() {
@@ -413,37 +411,6 @@
             }
         });
     });
-</script>
-</body>
-</html>
-<!-- زر تبديل الوضع -->
-<div style="text-align: center; margin-top: 20px;">
-    <button id="toggleMode">تبديل الوضع</button>
-</div>
-
-<script>
-    $(document).ready(function() {
-        // التحقق من الوضع المحفوظ في التخزين المحلي
-        if (localStorage.getItem('theme') === 'day') {
-            $('body').addClass('day-mode');
-        } else {
-            $('body').addClass('night-mode');
-        }
-
-        // تغيير الوضع عند الضغط على الزر
-        $('#toggleMode').click(function() {
-            if ($('body').hasClass('night-mode')) {
-                $('body').removeClass('night-mode').addClass('day-mode');
-                localStorage.setItem('theme', 'day');
-                $('#toggleMode').text('تبديل الوضع الليلي');
-            } else {
-                $('body').removeClass('day-mode').addClass('night-mode');
-                localStorage.setItem('theme', 'night');
-                $('#toggleMode').text('تبديل الوضع النهاري');
-            }
-        });
-    });
-    
 </script>
 <style>
     /* الوضع النهاري */
