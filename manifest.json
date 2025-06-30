@@ -1,0 +1,22 @@
+{
+  "name": "SEO-YT",
+  "short_name": "SEO-YT",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#FF5722",
+  "orientation": "portrait",
+  "description": "محرك بحث يوتيوب بدون إعلانات مزعجة.",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
