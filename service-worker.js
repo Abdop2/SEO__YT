@@ -1,24 +1,41 @@
-const cacheName = 'seo-yt-cache-v1';
-const staticAssets = [
+ثابت اسم ذاكرة التخزين المؤقت = 'seo-yt-cache-v2'؛
+الأصول الثابتة = [
   './',
   './index.html',
   './favicon.ico',
   './apple-touch-icon.png',
-  './manifest.json'
+  './manifest.json',
+  './style.css',
+  './main.js'
 ];
 
-self.addEventListener('install', async event => {
-  const cache = await caches.open(cacheName);
-  await cache.addAll(staticAssets);
-  return self.skipWaiting();
+// تثبيت ذاكرة التخزين المؤقت
+self.addEventListener('install', حدث غير متزامن => {
+  ثابت ذاكرة التخزين المؤقت = انتظار ذاكرة التخزين المؤقت.open(اسم ذاكرة التخزين المؤقت)؛
+  انتظر cache.addAll(staticAssets)؛
+  العودة self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
+// تفعيل ذاكرة التخزين المؤقت
+self.addEventListener('تنشيط', الحدث => {
   self.clients.claim();
 });
 
-self.addEventListener('fetch', async event => {
-  const req = event.request;
-  const cachedResponse = await caches.match(req);
-  return cachedResponse || fetch(req);
+// جلب الطلبات
+self.addEventListener('جلب'، حدث غير متزامن => {
+  ثابت req = event.request؛
+  ثابت url = عنوان URL جديد(req.url)؛
+
+  // جلب الاستجابات الجديدة وتخزينها دائمًا للمحتوى الديناميكي (مثل واجهة برمجة تطبيقات YouTube)
+  إذا (url.origin !== location.origin) {
+    إرجاع event.respondWith(fetch(req).catch(() => caches.match('./offline.html')));
+  }
+
+  // الخدمة من ذاكرة التخزين المؤقت أولاً، ثم الجلب من الشبكة
+  الحدث.respondWith(cacheFirst(req));
 });
+
+دالة غير متزامنة cacheFirst(req) {
+  ثابت مخبأ = انتظار مخبأ.مطابقة (req)؛
+  إرجاع المخزن المؤقت || fetch(req);
+}
