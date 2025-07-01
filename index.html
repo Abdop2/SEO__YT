@@ -3187,32 +3187,14 @@
     </script>
     
 </body>
-    <script type="module">
+
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
-import { getDocs, collection } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-async function loadFavorites(uid) {
-  const favsRef = collection(db, "users", uid, "favorites");
-  const snapshot = await getDocs(favsRef);
-
-  const container = document.getElementById("favoritesContainer");
-  container.innerHTML = ""; // امسح اللي قبله
-
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    container.innerHTML += `
-      <div class="video">
-        <h3>${data.title}</h3>
-        <p>ID: ${data.videoId}</p>
-      </div>
-    `;
-  });
-}
-
-  // Firebase config
+  // إعدادات Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDgHdAdL4nZdgv17JRukyusOcage5tPciw",
     authDomain: "seo-yt-7adf7.firebaseapp.com",
@@ -3223,46 +3205,14 @@ async function loadFavorites(uid) {
     measurementId: "G-67SJ2R4P36"
   };
 
-  // Initialize Firebase
+  // تهيئة Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
-document.getElementById("loginBtn").addEventListener("click", () => {
-  signInWithPopup(auth, provider)
-    .then(result => {
-      const user = result.user;
 
-      // عرض بيانات المستخدم
-      document.getElementById("userInfo").style.display = "block";
-      document.getElementById("userPic").src = user.photoURL;
-      document.getElementById("userName").textContent = user.displayName;
-
-      // 🟢 هنا نعرض مفضلة المستخدم الجديد
-      loadFavorites(user.uid);
-    })
-    .catch(error => {
-      console.error("فشل تسجيل الدخول:", error);
-      alert("حصلت مشكلة في تسجيل الدخول.");
-    });
-});
-
-  }); result.user;
-        document.getElementById("userInfo").style.display = "block";
-        document.getElementById("userPic").src = user.photoURL;
-        document.getElementById("userName").textContent = user.displayName;
-
-        // ربط أزرار المفضلة بعد تسجيل الدخول
-        attachFavoriteButtons(user);
-      })
-      .catch(error => {
-        console.error("فشل تسجيل الدخول:", error);
-        alert("حصلت مشكلة في تسجيل الدخول.");
-      });
-  });
-
-  // دالة الحفظ في Firebase
+  // دالة الحفظ في Firestore
   async function addToFavorites(user, videoId, title) {
     try {
       await setDoc(doc(db, "users", user.uid, "favorites", videoId), {
@@ -3277,7 +3227,26 @@ document.getElementById("loginBtn").addEventListener("click", () => {
     }
   }
 
-  // دالة ربط أزرار "أضف للمفضلة"
+  // دالة تحميل المفضلة
+  async function loadFavorites(uid) {
+    const favsRef = collection(db, "users", uid, "favorites");
+    const snapshot = await getDocs(favsRef);
+    const container = document.getElementById("favoritesContainer");
+
+    container.innerHTML = ""; // تفريغ
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      container.innerHTML += `
+        <div class="video">
+          <h3>${data.title}</h3>
+          <p>ID: ${data.videoId}</p>
+        </div>
+      `;
+    });
+  }
+
+  // ربط أزرار المفضلة بعد تسجيل الدخول
   function attachFavoriteButtons(user) {
     document.querySelectorAll('.add-to-fav').forEach(button => {
       button.addEventListener('click', () => {
@@ -3292,6 +3261,29 @@ document.getElementById("loginBtn").addEventListener("click", () => {
       });
     });
   }
+
+  // تسجيل الدخول
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    signInWithPopup(auth, provider)
+      .then(result => {
+        const user = result.user;
+
+        // عرض معلومات المستخدم
+        document.getElementById("userInfo").style.display = "block";
+        document.getElementById("userPic").src = user.photoURL;
+        document.getElementById("userName").textContent = user.displayName;
+
+        // تحميل المفضلة الخاصة بيه
+        loadFavorites(user.uid);
+
+        // ربط أزرار المفضلة بالمستخدم الجديد
+        attachFavoriteButtons(user);
+      })
+      .catch(error => {
+        console.error("فشل تسجيل الدخول:", error);
+        alert("حصلت مشكلة في تسجيل الدخول.");
+      });
+  });
 </script>
 
 </html>
