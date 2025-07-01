@@ -1970,7 +1970,15 @@
     <button class="theme-toggle" id="focusModeToggle" style="left: 140px;">
         <i class="fas fa-eye"></i>
     </button>
-    
+    <!-- زر تسجيل الدخول -->
+<button id="loginBtn">تسجيل دخول بجوجل</button>
+
+<!-- عرض بيانات المستخدم بعد الدخول -->
+<div id="userInfo" style="display:none; margin-top: 10px;">
+  <img id="userPic" width="50" style="border-radius:50%;">
+  <span id="userName" style="font-weight: bold;"></span>
+</div>
+
     <!-- وضع التعلم -->
     <button class="learning-mode" id="learningModeBtn">
         <i class="fas fa-graduation-cap"></i>
@@ -3109,5 +3117,47 @@
             });
         });
     </script>
+    <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDgHdAdL4nZdgv17JRukyusOcage5tPciw",
+    authDomain: "seo-yt-7adf7.firebaseapp.com",
+    projectId: "seo-yt-7adf7",
+    storageBucket: "seo-yt-7adf7.firebasestorage.app",
+    messagingSenderId: "807612901091",
+    appId: "1:807612901091:web:0b60be9ad945efa3cbc7d6",
+    measurementId: "G-67SJ2R4P36"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+document.getElementById("loginBtn").addEventListener("click", () => {
+  signInWithPopup(auth, provider)
+    .then(result => {
+      const user = result.user;
+      document.getElementById("userInfo").style.display = "block";
+      document.getElementById("userPic").src = user.photoURL;
+      document.getElementById("userName").textContent = user.displayName;
+    })
+    .catch(error => {
+      console.error("فشل تسجيل الدخول:", error);
+      alert("حصلت مشكلة في تسجيل الدخول.");
+    });
+});
+
+</script>
 </body>
 </html>
