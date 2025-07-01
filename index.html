@@ -3186,11 +3186,31 @@
         });
     </script>
     
-</body><script type="module">
+</body>
+    <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
   import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+import { getDocs, collection } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+async function loadFavorites(uid) {
+  const favsRef = collection(db, "users", uid, "favorites");
+  const snapshot = await getDocs(favsRef);
+
+  const container = document.getElementById("favoritesContainer");
+  container.innerHTML = ""; // امسح اللي قبله
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    container.innerHTML += `
+      <div class="video">
+        <h3>${data.title}</h3>
+        <p>ID: ${data.videoId}</p>
+      </div>
+    `;
+  });
+}
 
   // Firebase config
   const firebaseConfig = {
@@ -3209,12 +3229,26 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
+document.getElementById("loginBtn").addEventListener("click", () => {
+  signInWithPopup(auth, provider)
+    .then(result => {
+      const user = result.user;
 
-  // تسجيل الدخول
-  document.getElementById("loginBtn").addEventListener("click", () => {
-    signInWithPopup(auth, provider)
-      .then(result => {
-        const user = result.user;
+      // عرض بيانات المستخدم
+      document.getElementById("userInfo").style.display = "block";
+      document.getElementById("userPic").src = user.photoURL;
+      document.getElementById("userName").textContent = user.displayName;
+
+      // 🟢 هنا نعرض مفضلة المستخدم الجديد
+      loadFavorites(user.uid);
+    })
+    .catch(error => {
+      console.error("فشل تسجيل الدخول:", error);
+      alert("حصلت مشكلة في تسجيل الدخول.");
+    });
+});
+
+  }); result.user;
         document.getElementById("userInfo").style.display = "block";
         document.getElementById("userPic").src = user.photoURL;
         document.getElementById("userName").textContent = user.displayName;
