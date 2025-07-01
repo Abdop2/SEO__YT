@@ -1727,39 +1727,55 @@
                 right: 60px;
             }
         }
-        .auth-btn {
-  padding: 10px 18px;
+/* حاوية الزر */
+#authWrapper {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  z-index: 999;
+  display: flex;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05); /* شفافية خفيفة */
+  padding: 8px 12px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px); /* السحر هنا ✨ */
+  box-shadow: 0 0 12px rgba(255, 87, 34, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* الزر الأساسي */
+.auth-btn {
+  padding: 8px 16px;
   font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   font-family: 'Cairo', sans-serif;
-  font-size: 15px;
-  box-shadow: 0 0 10px #ff5722;
-  transition: background 0.3s ease, transform 0.2s ease;
-  margin: 5px;
+  font-size: 14px;
+  background-color: rgba(255, 87, 34, 0.6); /* برتقالي شفاف */
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 8px #ff5722;
+  backdrop-filter: blur(3px);
+  transition: transform 0.2s ease;
 }
 
 .auth-btn:hover {
   transform: scale(1.05);
 }
 
-.auth-btn.google {
-  background: rgba(255, 87, 34, 0.9); /* لون نيون برتقالي */
-  color: white;
-}
-
+/* زر تسجيل الخروج */
 .auth-btn.logout {
-  background: rgba(255, 0, 0, 0.7);
-  color: white;
-  box-shadow: 0 0 10px red;
+  background-color: rgba(255, 0, 0, 0.5);
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);
 }
 
+/* أيقونة Google */
 .auth-icon {
-  width: 20px;
-  margin-right: 8px;
+  width: 18px;
+  margin-left: 8px;
   vertical-align: middle;
 }
 
@@ -2007,8 +2023,8 @@
         <i class="fas fa-eye"></i>
     </button>
     <!-- زر تسجيل الدخول -->
-
-<div id="authContainer" style="margin-top: 20px;">
+<!-- تسجيل دخول وخروج مع تصميم أنيق -->
+<div id="authWrapper">
   <button id="loginBtn" class="auth-btn google">
     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="auth-icon">
     تسجيل دخول بحساب Google
@@ -2018,6 +2034,13 @@
     تسجيل خروج
   </button>
 </div>
+
+<!-- معلومات المستخدم بعد الدخول -->
+<div id="userInfo" style="display:none; margin-top: 15px;">
+  <img id="userPic" width="50" style="border-radius:50%;">
+  <span id="userName" style="margin-right: 10px; font-weight: bold;"></span>
+</div>
+
 
 <div id="userInfo" style="display:none; margin-top: 15px;">
   <img id="userPic" width="50" style="border-radius:50%;">
