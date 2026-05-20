@@ -2471,7 +2471,7 @@
                     data: {
                         part: 'snippet',
                         id: channelId,
-                        key: 'AIzaSyDXk_Q2bfsiyk2QimNqpQUIN_1lZDJpDBY'
+                        key: 'AIzaSyDjvm4fz4FHw30mKebpPOfaD7BVgiPxc_I'
                     },
                     success: function(response) {
                         if (response.items && response.items.length > 0) {
@@ -2492,7 +2492,7 @@
                     data: {
                         part: 'contentDetails,statistics',
                         id: videoIds.join(','),
-                        key: 'AIzaSyDXk_Q2bfsiyk2QimNqpQUIN_1lZDJpDBY'
+                        key: 'AIzaSyDjvm4fz4FHw30mKebpPOfaD7BVgiPxc_I'
                     },
                     success: function(response) {
                         response.items.forEach(video => {
@@ -2522,7 +2522,7 @@
                     data: {
                         part: 'snippet,contentDetails,statistics',
                         id: videoId,
-                        key: 'AIzaSyDXk_Q2bfsiyk2QimNqpQUIN_1lZDJpDBY'
+                        key: 'AIzaSyDjvm4fz4FHw30mKebpPOfaD7BVgiPxc_I'
                     },
                     success: function(response) {
                         if (response.items && response.items.length > 0) {
@@ -2888,7 +2888,7 @@
                         part: 'snippet',
                         q: query,
                         maxResults: 5,
-                        key: 'AIzaSyDXk_Q2bfsiyk2QimNqpQUIN_1lZDJpDBY',
+                        key: 'AIzaSyDjvm4fz4FHw30mKebpPOfaD7BVgiPxc_I',
                         regionCode: currentRegion,
                         type: 'video'
                     },
@@ -2916,7 +2916,7 @@
                         part: 'snippet',
                         q: randomCategory,
                         maxResults: 5,
-                        key: 'AIzaSyDXk_Q2bfsiyk2QimNqpQUIN_1lZDJpDBY',
+                        key: 'AIzaSyDjvm4fz4FHw30mKebpPOfaD7BVgiPxc_I',
                         regionCode: currentRegion,
                         type: 'video'
                     },
@@ -3108,7 +3108,7 @@
                         part: 'snippet,contentDetails,statistics',
                         id: videoIds.join(','),
                         maxResults: resultsPerPage,
-                        key: 'AIzaSyDXk_Q2bfsiyk2QimNqpQUIN_1lZDJpDBY'
+                        key: 'AIzaSyDjvm4fz4FHw30mKebpPOfaD7BVgiPxc_I'
                     },
                     success: function(response) {
                         $('#loadingSpinner').hide();
